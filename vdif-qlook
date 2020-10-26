@@ -1,0 +1,55 @@
+#!/usr/bin/env python
+
+
+"""Quick look for VDIF
+
+Usage: vdif-qlook [-f <PATH>] [--integ <T>] [--chbin <N>]
+
+-f <PATH>    Input VDIF file.
+--integ <T>  Integration time in seconds [default: 1.0].
+--chbin <N>  Number of channels to bin [default: 1].
+-h --help    Show this screen and exit.
+--version    Show version and exit.
+
+"""
+
+
+__author__ = "Masato Hagimoto"
+__version__ = "0.1.0"
+
+
+# standard library
+import time
+from pathlib import Path
+
+
+# dependencies
+import numpy as np
+import matplotlib.pyplot as plt
+from docopt import docopt
+from vdif_reader import get_spectrum
+
+
+# main functions
+def main() -> None:
+    args = docopt(__doc__, version=__version__)
+
+    path = Path(args["-f"]).resolve()
+    integ = float(args["--integ"])
+    chbin = int(args["--chbin"])
+
+    fig, ax = plt.subplots()
+
+    while True:
+        start = time.time()
+        spectrum = get_spectrum(path, integ, chbin)
+        end = time.time()
+
+        (line,) = ax.plot(np.angle(spectrum))
+        plt.pause(integ - (end - start))
+        line.remove()
+
+
+# run command line interface
+if __name__ == "__main__":
+    main()
