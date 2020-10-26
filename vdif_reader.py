@@ -2,6 +2,8 @@ __all__ = ["get_spectrum"]
 
 
 # standard library
+import re
+from datetime import datetime
 from struct import Struct
 from pathlib import Path
 
@@ -21,6 +23,8 @@ N_UNITS_PER_SCAN = 64
 N_BYTES_PER_UNIT = 1312
 N_BYTES_PER_SCAN = 1312 * 64
 TIME_PER_SCAN = 5e-3
+VDIF_PATTERN = re.compile(r"\w+_(\d+)_\d.vdif")
+TIME_FORMAT = "%Y%j%H%M%S"
 
 
 # main features
@@ -32,7 +36,7 @@ def get_spectrum(path: Path, integ: float, chbin: int) -> np.ndarray:
 
 # sub features
 def get_spectra(path: Path, integ: float) -> np.ndarray:
-    n_scans = path.stat().st_size // N_BYTES_PER_SCAN
+    n_scans = get_n_scans_from_time(path)
     n_integ = int(integ / TIME_PER_SCAN)
     n_units = N_UNITS_PER_SCAN * n_integ
     n_chans = N_ROWS_CORR_DATA // 2
@@ -57,6 +61,18 @@ def get_spectra(path: Path, integ: float) -> np.ndarray:
 def integrate_spectra(spectra: np.ndarray, chbin: int) -> np.ndarray:
     spectrum = spectra.mean(0)
     return spectrum.reshape([len(spectrum) // chbin, chbin]).mean(1)
+
+
+def get_n_scans_from_time(path: Path) -> int:
+    match = VDIF_PATTERN.search(path.name)
+
+    if match is None:
+        raise ValueError("Cannot parse start time from file name.")
+
+    t_start = datetime.strptime(match.groups()[0], TIME_FORMAT)
+    t_now = datetime.utcnow()
+
+    return int((t_now - t_start).total_seconds() / TIME_PER_SCAN)
 
 
 # readers
