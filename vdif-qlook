@@ -3,13 +3,14 @@
 
 """Quick look for VDIF
 
-Usage: vdif-qlook [-f <PATH>] [--integ <T>] [--chbin <N>]
+Usage: vdif-qlook [-f <PATH>] [--integ <T>] [--interval <T>] [--chbin <N>]
 
--f <PATH>    Input VDIF file.
---integ <T>  Integration time in seconds [default: 1.0].
---chbin <N>  Number of channels to bin [default: 1].
--h --help    Show this screen and exit.
---version    Show version and exit.
+-f <PATH>       Input VDIF file.
+--integ <T>     Integration time in seconds [default: 1.0].
+--interval <T>  Plot interval time in seconds [default: 1.0].
+--chbin <N>     Number of channels to bin [default: 1].
+-h --help       Show this screen and exit.
+--version       Show version and exit.
 
 """
 
@@ -36,6 +37,7 @@ def main() -> None:
 
     path = Path(args["-f"]).resolve()
     integ = float(args["--integ"])
+    interval = float(args["--interval"])
     chbin = int(args["--chbin"])
 
     fig, ax = plt.subplots()
@@ -46,7 +48,7 @@ def main() -> None:
         end = time.time()
 
         (line,) = ax.plot(np.angle(spectrum))
-        plt.pause(integ - (end - start))
+        plt.pause(interval - (end - start))
         line.remove()
 
 
