@@ -56,7 +56,7 @@ def get_spectra(path: Path, integ: float) -> np.ndarray:
 
 def integrate_spectra(spectra: np.ndarray, chbin: int) -> np.ndarray:
     spectrum = spectra.mean(0)
-    return spectrum.reshape([chbin, len(spectrum) // chbin]).mean(1)
+    return spectrum.reshape([len(spectrum) // chbin, chbin]).mean(1)
 
 
 # readers
