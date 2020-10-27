@@ -3,10 +3,11 @@
 
 """Quick look for VDIF
 
-Usage: vdif-qlook [-f <PATH>] [--integ <T>] [--interval <T>] [--chbin <N>]
+Usage: vdif-qlook [-f <PATH>] [--integ <T>] [--delay <T>] [--interval <T>] [--chbin <N>]
 
 -f <PATH>       Input VDIF file.
 --integ <T>     Integration time in seconds [default: 1.0].
+--delay <T>     Time delay for plot in seconds [default: 0.0].
 --interval <T>  Plot interval time in seconds [default: 1.0].
 --chbin <N>     Number of channels to bin [default: 1].
 -h --help       Show this screen and exit.
@@ -37,6 +38,7 @@ def main() -> None:
 
     path = Path(args["-f"]).resolve()
     integ = float(args["--integ"])
+    delay = float(args["--delay"])
     interval = float(args["--interval"])
     chbin = int(args["--chbin"])
 
@@ -44,7 +46,7 @@ def main() -> None:
 
     while True:
         start = time.time()
-        spectrum = get_spectrum(path, integ, chbin)
+        spectrum = get_spectrum(path, integ, delay, chbin)
         end = time.time()
 
         (line,) = ax.plot(np.angle(spectrum))
