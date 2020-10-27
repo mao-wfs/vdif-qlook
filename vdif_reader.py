@@ -41,7 +41,12 @@ def get_spectrum(
     return spectrum
 
 
-def get_cal_spectrum(path, cal, delay, chbin):
+def get_cal_spectrum(
+    path: Path,
+    cal: float = 0.0,
+    delay: float = 0.0,
+    chbin: int = 1,
+) -> np.ndarray:
     while get_elapsed_time_from_start(path, delay) < cal:
         time.sleep(0.5)
 
