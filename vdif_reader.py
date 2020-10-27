@@ -3,8 +3,7 @@ __all__ = ["get_spectrum"]
 
 # standard library
 import re
-from datetime import datetime
-from struct import Struct
+from datetime import datetime, timedelta
 from pathlib import Path
 from struct import Struct
 from typing import Callable, Pattern
@@ -30,15 +29,20 @@ VDIF_PATTERN: Pattern = re.compile(r"\w+_(\d+)_\d.vdif")
 
 
 # main features
-def get_spectrum(path: Path, integ: float, chbin: int) -> np.ndarray:
-    spectra = get_spectra(path, integ)
+def get_spectrum(
+    path: Path,
+    integ: float = 1.0,
+    delay: float = 0.0,
+    chbin: int = 1,
+) -> np.ndarray:
+    spectra = get_spectra(path, integ, delay)
     spectrum = integrate_spectra(spectra, chbin)
     return spectrum
 
 
 # sub features
-def get_spectra(path: Path, integ: float) -> np.ndarray:
-    n_scans = get_n_scans_from_time(path)
+def get_spectra(path: Path, integ: float = 1.0, delay: float = 0.0) -> np.ndarray:
+    n_scans = get_n_scans_from_time(path, delay)
     n_integ = int(integ / TIME_PER_SCAN)
     n_units = N_UNITS_PER_SCAN * n_integ
     n_chans = N_ROWS_CORR_DATA // 2
@@ -60,19 +64,19 @@ def get_spectra(path: Path, integ: float) -> np.ndarray:
     return spectra.reshape([n_integ, N_UNITS_PER_SCAN * n_chans])
 
 
-def integrate_spectra(spectra: np.ndarray, chbin: int) -> np.ndarray:
+def integrate_spectra(spectra: np.ndarray, chbin: int = 1) -> np.ndarray:
     spectrum = spectra.mean(0)
     return spectrum.reshape([len(spectrum) // chbin, chbin]).mean(1)
 
 
-def get_n_scans_from_time(path: Path) -> int:
+def get_n_scans_from_time(path: Path, delay: float = 0.0) -> int:
     match = VDIF_PATTERN.search(path.name)
 
     if match is None:
         raise ValueError("Cannot parse start time from file name.")
 
     t_start = datetime.strptime(match.groups()[0], TIME_FORMAT)
-    t_now = datetime.utcnow()
+    t_now = datetime.utcnow() - timedelta(seconds=delay)
 
     return int((t_now - t_start).total_seconds() / TIME_PER_SCAN)
 
