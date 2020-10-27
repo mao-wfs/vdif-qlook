@@ -12,7 +12,7 @@ Usage: vdif-qlook [-f <PATH>] [--integ <T>] [--delay <T>] [--interval <T>] [--ch
 --chbin <N>     Number of channels to bin [default: 1].
 --cal <T>       Calibration time in seconds [default: 0.0].
 -h --help       Show this screen and exit.
---version       Show version and exit.
+-v --version    Show version and exit.
 
 """
 
