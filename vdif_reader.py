@@ -1,8 +1,9 @@
-__all__ = ["get_spectrum"]
+__all__ = ["get_spectrum", "get_cal_spectrum"]
 
 
 # standard library
 import re
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from struct import Struct
@@ -40,9 +41,16 @@ def get_spectrum(
     return spectrum
 
 
+def get_cal_spectrum(path, cal, delay, chbin):
+    while get_elapsed_time_from_start(path, delay) < cal:
+        time.sleep(0.5)
+
+    return get_spectrum(path, cal, delay, chbin)
+
+
 # sub features
 def get_spectra(path: Path, integ: float = 1.0, delay: float = 0.0) -> np.ndarray:
-    n_scans = get_n_scans_from_time(path, delay)
+    n_scans = int(get_elapsed_time_from_start(path, delay) / TIME_PER_SCAN)
     n_integ = int(integ / TIME_PER_SCAN)
     n_units = N_UNITS_PER_SCAN * n_integ
     n_chans = N_ROWS_CORR_DATA // 2
@@ -69,7 +77,7 @@ def integrate_spectra(spectra: np.ndarray, chbin: int = 1) -> np.ndarray:
     return spectrum.reshape([len(spectrum) // chbin, chbin]).mean(1)
 
 
-def get_n_scans_from_time(path: Path, delay: float = 0.0) -> int:
+def get_elapsed_time_from_start(path: Path, delay: float = 0.0) -> float:
     match = VDIF_PATTERN.search(path.name)
 
     if match is None:
@@ -78,7 +86,7 @@ def get_n_scans_from_time(path: Path, delay: float = 0.0) -> int:
     t_start = datetime.strptime(match.groups()[0], TIME_FORMAT)
     t_now = datetime.utcnow() - timedelta(seconds=delay)
 
-    return int((t_now - t_start).total_seconds() / TIME_PER_SCAN)
+    return (t_now - t_start).total_seconds()
 
 
 # struct readers
