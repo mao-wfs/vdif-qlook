@@ -50,7 +50,7 @@ def main() -> None:
         end = time.time()
 
         ax0 = axes[0]
-        (line,) = ax0.scatter(np.angle(spectrum), lw=0, s=5)
+        (line,) = ax0.plot(np.angle(spectrum), marker=".", lw=0)
 
         ax1 = axes[1]
         (amp,) = ax1.plot(np.abs(spectrum))
