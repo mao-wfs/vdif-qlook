@@ -6,6 +6,8 @@ import re
 from datetime import datetime
 from struct import Struct
 from pathlib import Path
+from struct import Struct
+from typing import Callable, Pattern
 
 
 # dependent packages
@@ -13,18 +15,18 @@ import numpy as np
 
 
 # constants
-LITTLE_ENDIAN = "<"
-UINT = "I"
-SHORT = "h"
-N_ROWS_VDIF_HEAD = 8
-N_ROWS_CORR_HEAD = 64
-N_ROWS_CORR_DATA = 512
-N_UNITS_PER_SCAN = 64
-N_BYTES_PER_UNIT = 1312
-N_BYTES_PER_SCAN = 1312 * 64
-TIME_PER_SCAN = 5e-3
-VDIF_PATTERN = re.compile(r"\w+_(\d+)_\d.vdif")
-TIME_FORMAT = "%Y%j%H%M%S"
+LITTLE_ENDIAN: str = "<"
+UINT: str = "I"
+SHORT: str = "h"
+N_ROWS_VDIF_HEAD: int = 8
+N_ROWS_CORR_HEAD: int = 64
+N_ROWS_CORR_DATA: int = 512
+N_UNITS_PER_SCAN: int = 64
+N_BYTES_PER_UNIT: int = 1312
+N_BYTES_PER_SCAN: int = 1312 * 64
+TIME_PER_SCAN: float = 5e-3
+VDIF_PATTERN: Pattern = re.compile(r"\w+_(\d+)_\d.vdif")
+TIME_FORMAT: str = "%Y%j%H%M%S"
 
 
 # main features
@@ -75,8 +77,8 @@ def get_n_scans_from_time(path: Path) -> int:
     return int((t_now - t_start).total_seconds() / TIME_PER_SCAN)
 
 
-# readers
-def make_binary_reader(n_rows, dtype):
+# struct readers
+def make_binary_reader(n_rows: int, dtype: str) -> Callable:
     struct = Struct(LITTLE_ENDIAN + dtype * n_rows)
 
     def reader(f):
@@ -85,23 +87,23 @@ def make_binary_reader(n_rows, dtype):
     return reader
 
 
-read_vdif_head = make_binary_reader(N_ROWS_VDIF_HEAD, UINT)
-read_corr_head = make_binary_reader(N_ROWS_CORR_HEAD, UINT)
-read_corr_data = make_binary_reader(N_ROWS_CORR_DATA, SHORT)
+read_vdif_head: Callable = make_binary_reader(N_ROWS_VDIF_HEAD, UINT)
+read_corr_head: Callable = make_binary_reader(N_ROWS_CORR_HEAD, UINT)
+read_corr_data: Callable = make_binary_reader(N_ROWS_CORR_DATA, SHORT)
 
 
-# parsers
-def parse_vdif_head(vdif_head):
+# struct parsers
+def parse_vdif_head(vdif_head: list):
     # not implemented yet
     pass
 
 
-def parse_corr_head(corr_head):
+def parse_corr_head(corr_head: list):
     # not implemented yet
     pass
 
 
-def parse_corr_data(corr_data):
+def parse_corr_data(corr_data: list) -> np.ndarray:
     real = np.array(corr_data[0::2])
     imag = np.array(corr_data[1::2])
     return real + imag * 1j
