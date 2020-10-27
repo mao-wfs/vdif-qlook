@@ -42,15 +42,19 @@ def main() -> None:
     interval = float(args["--interval"])
     chbin = int(args["--chbin"])
 
-    fig, ax = plt.subplots()
+    fig, axes = plt.subplots(2, 1)
 
     while True:
         start = time.time()
         spectrum = get_spectrum(path, integ, delay, chbin)
         end = time.time()
 
-        (line,) = ax.plot(np.angle(spectrum))
-        (amp,) = ax.plot(np.abs(spectrum))
+        ax0 = axes[0]
+        (line,) = ax0.plot(np.angle(spectrum))
+
+        ax1 = axes[1]
+        (amp,) = ax1.plot(np.abs(spectrum))
+
         plt.pause(interval - (end - start))
         line.remove()
         amp.remove()
