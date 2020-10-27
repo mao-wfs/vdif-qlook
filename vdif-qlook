@@ -50,8 +50,10 @@ def main() -> None:
         end = time.time()
 
         (line,) = ax.plot(np.angle(spectrum))
+        (amp,) = ax.plot(np.abs(spectrum))
         plt.pause(interval - (end - start))
         line.remove()
+        amp.remove()
 
 
 # run command line interface
