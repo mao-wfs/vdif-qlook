@@ -24,9 +24,9 @@ N_ROWS_CORR_DATA: int = 512
 N_UNITS_PER_SCAN: int = 64
 N_BYTES_PER_UNIT: int = 1312
 N_BYTES_PER_SCAN: int = 1312 * 64
-TIME_PER_SCAN: float = 5e-3
-VDIF_PATTERN: Pattern = re.compile(r"\w+_(\d+)_\d.vdif")
+TIME_PER_SCAN: float = 5e-3  # seconds
 TIME_FORMAT: str = "%Y%j%H%M%S"
+VDIF_PATTERN: Pattern = re.compile(r"\w+_(\d+)_\d.vdif")
 
 
 # main features
