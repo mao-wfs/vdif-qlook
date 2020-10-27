@@ -50,10 +50,11 @@ def main() -> None:
         end = time.time()
 
         ax0 = axes[0]
-        (line,) = ax0.plot(np.angle(spectrum), lw=0)
+        (line,) = ax0.scatter(np.angle(spectrum), lw=0, s=5)
 
         ax1 = axes[1]
         (amp,) = ax1.plot(np.abs(spectrum))
+        ax1.ylim(0, 1000)
 
         plt.pause(interval - (end - start))
         line.remove()
