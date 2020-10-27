@@ -54,7 +54,7 @@ def main() -> None:
 
         ax1 = axes[1]
         (amp,) = ax1.plot(np.abs(spectrum))
-        ax1.set_ylim(0, 1000)
+        # ax1.set_ylim(0, 1000)
 
         plt.pause(interval - (end - start))
         line.remove()
