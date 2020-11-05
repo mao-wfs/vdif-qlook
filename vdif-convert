@@ -1,0 +1,48 @@
+#!/usr/bin/env python
+
+
+"""Convert VDIF to NumPy format.
+
+Usage: vdif-convert <vdif> [<npz>] [--chbin <N>]
+
+<vdif>        Input VDIF file (*.vdif).
+<npz>         Output NumPy file (*.npz).
+--chbin <N>   Number of channels to bin [default: 1].
+-h --help     Show this screen and exit.
+-v --version  Show version and exit.
+
+"""
+
+
+__author__ = "Akio Taniguchi"
+__version__ = "0.1.0"
+
+
+# standard library
+from pathlib import Path
+
+
+# dependencies
+import numpy as np
+from docopt import docopt
+from vdif_reader import get_all_spectra
+
+
+# main functions
+def main() -> None:
+    args = docopt(__doc__, version=__version__)
+
+    vdif = Path(args["<vdif>"]).resolve()
+
+    try:
+        npz = Path(args["<npz>"]).resolve()
+    except TypeError:
+        npz = vdif.with_suffix(".npz")
+
+    spectra = get_all_spectra(vdif, int(args["--chbin"]))
+    np.savez(npz, spectra=spectra)
+
+
+# run command line interface
+if __name__ == "__main__":
+    main()

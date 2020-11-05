@@ -1,4 +1,8 @@
-__all__ = ["get_spectrum", "get_cal_spectrum"]
+__all__ = [
+    "get_spectrum",
+    "get_all_spectra",
+    "get_cal_spectrum",
+]
 
 
 # standard library
@@ -12,6 +16,7 @@ from typing import Callable, Pattern
 
 # dependent packages
 import numpy as np
+from tqdm import tqdm
 
 
 # constants
@@ -51,6 +56,25 @@ def get_cal_spectrum(
         time.sleep(0.5)
 
     return get_spectrum(path, cal, delay, chbin)
+
+
+def get_all_spectra(path: Path, chbin: int = 1) -> np.ndarray:
+    n_units = path.stat().st_size // N_BYTES_PER_UNIT
+    n_scans = n_units // N_UNITS_PER_SCAN
+    n_chans = N_ROWS_CORR_DATA // 2
+
+    spectra = np.empty([n_units, n_chans], dtype=np.complex64)
+
+    with open(path, "rb") as f:
+        for i in tqdm(range(n_units)):
+            read_vdif_head(f)
+            read_corr_head(f)
+            corr_data = read_corr_data(f)
+            spectra[i] = parse_corr_data(corr_data)
+
+    n_chans = n_chans * N_UNITS_PER_SCAN
+    spectra = spectra.reshape([n_scans, n_chans])
+    return spectra.reshape([n_scans, n_chans // chbin, chbin]).mean(2)
 
 
 # sub features
